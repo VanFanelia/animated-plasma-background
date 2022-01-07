@@ -65,12 +65,14 @@ class MainActivity : ComponentActivity() {
                 ) {
                     var showMenuOverlay by remember { mutableStateOf(false) }
                     val showFPS = remember { mutableStateOf(true) }
+                    val debugDoNotScale = remember { mutableStateOf(false) }
                     val fpsValue = remember { mutableStateOf(TextFieldValue("20")) }
                     var newFPSValue by remember { mutableStateOf<Int?>(DEFAULT_FPS) }
 
                     PlasmaBackground(
                         maxFPS = newFPSValue ?: DEFAULT_FPS,
                         debugShowFPS = showFPS.value,
+                        debugDoNotScale = debugDoNotScale.value
                     )
 
                     AnimatedVisibility(
@@ -154,6 +156,22 @@ class MainActivity : ComponentActivity() {
                                     Text(
                                         modifier = Modifier.padding(8.dp),
                                         text = "Set maximum FPS (Optimum is $DEFAULT_FPS)"
+                                    )
+                                }
+                                Row(
+                                    modifier = Modifier
+                                        .padding(top = 8.dp)
+                                        .clickable {
+                                            debugDoNotScale.value = !debugDoNotScale.value
+                                        }
+                                ) {
+                                    Checkbox(
+                                        checked = debugDoNotScale.value,
+                                        onCheckedChange = { debugDoNotScale.value = it }
+                                    )
+                                    Text(
+                                        modifier = Modifier.padding(start = 20.dp),
+                                        text = "Do not scale image (debug)"
                                     )
                                 }
                             }

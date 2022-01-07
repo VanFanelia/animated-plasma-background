@@ -66,7 +66,8 @@ fun PlasmaBackground(
     ),
     maxFPS: Int = DEFAULT_FPS,
     debugShowFPS: Boolean = false,
-    debugColor: Color = Color(0x4DFF00FB)
+    debugColor: Color = Color(0x4DFF00FB),
+    debugDoNotScale: Boolean = false,
 ) {
     var frameTime by remember { mutableStateOf(0L) }
     val heightMaps = buildHeightMap()
@@ -161,10 +162,15 @@ fun PlasmaBackground(
                 } else {
                     BITMAP_FOR_DRAWING?.let { bitmap ->
                         bitmap.copyPixelsFromBuffer(CURRENT_IMAGE_BUFFER)
+                        val destinationSize = if (!debugDoNotScale) {
+                            IntSize(fullWidth, fullHeight * 2)
+                        } else {
+                            IntSize(width, height)
+                        }
                         this.drawImage(
                             image = bitmap.asImageBitmap(),
                             srcSize = IntSize(width, height),
-                            dstSize = IntSize(fullWidth, fullHeight * 2)
+                            dstSize = destinationSize
                         )
                     }
                 }
