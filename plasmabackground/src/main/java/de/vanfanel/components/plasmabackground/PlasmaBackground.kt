@@ -26,7 +26,9 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.lifecycle.whenStarted
+import kotlinx.coroutines.launch
 import java.nio.IntBuffer
+import java.util.UUID
 import kotlin.math.cos
 import kotlin.math.floor
 import kotlin.math.max
@@ -49,7 +51,7 @@ var LAST_TICK: Long = 0
 var FRAMES_PER_SECOND_COUNTER = 0
 var LAST_FRAME_RATE = 0
 
-// TODO use colors in parameters!
+const val DEFAULT_FPS = 20
 
 @Composable
 fun PlasmaBackground(
@@ -62,27 +64,33 @@ fun PlasmaBackground(
         Color(0xfffef9ef),
         Color(0xfffe6d73)
     ),
-    restrictFpsTo: Int = 30,
+    maxFPS: Int = DEFAULT_FPS,
     debugShowFPS: Boolean = false,
     debugColor: Color = Color(0x4DFF00FB)
 ) {
     var frameTime by remember { mutableStateOf(0L) }
     val heightMaps = buildHeightMap()
+
     GRADIENT_COLOR_PALETTE = buildGradientColors(colors, debugColor)
     GRADIENT_COLOR_PALETTE_RGBA = GRADIENT_COLOR_PALETTE.map { it.toRGBA8888() }
+    val minUpdateTime = floor(1000f / maxFPS).toInt()
+    Log.d(LOG_TAG, "Draw with maximum of $maxFPS FPS")
 
     val lifecycleOwner = LocalLifecycleOwner.current
-    LaunchedEffect(Unit) {
+    LaunchedEffect(key1 = UUID.randomUUID().toString()) {
         lifecycleOwner.whenStarted {
-            while (true) {
-                // this will be called for each frame
-                // by updating `remember` value we initiating EachFrameUpdatingCanvas redraw
-                val currentFrameTimeInMilliseconds = withFrameMillis { it }
-                if ((currentFrameTimeInMilliseconds - LAST_TICK) < restrictFpsTo) {
-                    continue
+            this.launch {
+                while (true) {
+                    // this will be called for each frame
+                    // by updating `remember` value we initiating EachFrameUpdatingCanvas redraw
+                    val currentFrameTimeInMilliseconds = withFrameMillis { it }
+                    val timePassed = currentFrameTimeInMilliseconds - LAST_TICK
+                    if (timePassed < minUpdateTime) {
+                        continue
+                    }
+                    frameTime = currentFrameTimeInMilliseconds
+                    LAST_TICK = frameTime
                 }
-                frameTime = currentFrameTimeInMilliseconds
-                LAST_TICK = frameTime
             }
         }
     }

@@ -1,6 +1,7 @@
 package de.vanfanel.components.examples.plasmabackground
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.animation.AnimatedVisibility
@@ -17,12 +18,16 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Checkbox
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -31,17 +36,27 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import de.vanfanel.components.examples.plasmabackground.ui.theme.AnimatedPlasmaBackgroundTheme
 import de.vanfanel.components.examples.plasmabackground.ui.theme.TRANSPARENT_GREY
+import de.vanfanel.components.plasmabackground.DEFAULT_FPS
 import de.vanfanel.components.plasmabackground.PlasmaBackground
 
+@Suppress("EXPERIMENTAL_IS_NOT_ENABLED")
 class MainActivity : ComponentActivity() {
-    @OptIn(ExperimentalAnimationApi::class)
+
+    @OptIn(ExperimentalAnimationApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val appContext = this.applicationContext
+
         setContent {
             AnimatedPlasmaBackgroundTheme {
                 // A surface container using the 'background' color from the theme
@@ -49,10 +64,13 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     var showMenuOverlay by remember { mutableStateOf(false) }
-                    val showFPS = remember { mutableStateOf(false) }
+                    val showFPS = remember { mutableStateOf(true) }
+                    val fpsValue = remember { mutableStateOf(TextFieldValue("20")) }
+                    var newFPSValue by remember { mutableStateOf<Int?>(DEFAULT_FPS) }
 
                     PlasmaBackground(
-                        debugShowFPS = showFPS.value
+                        maxFPS = newFPSValue ?: DEFAULT_FPS,
+                        debugShowFPS = showFPS.value,
                     )
 
                     AnimatedVisibility(
@@ -80,6 +98,62 @@ class MainActivity : ComponentActivity() {
                                     Text(
                                         modifier = Modifier.padding(start = 20.dp),
                                         text = "Show FPS"
+                                    )
+                                }
+                                Row(
+                                    modifier = Modifier.padding(top = 8.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    val keyboardController = LocalSoftwareKeyboardController.current
+                                    val focusManager = LocalFocusManager.current
+                                    TextField(
+                                        modifier = Modifier.width(64.dp),
+                                        value = fpsValue.value,
+                                        onValueChange = { textFieldValue ->
+                                            try {
+                                                if (textFieldValue.text.isEmpty()) {
+                                                    fpsValue.value = textFieldValue
+                                                    return@TextField
+                                                }
+                                                val intValue =
+                                                    textFieldValue.text.filter { it.isDigit() }
+                                                        .toInt()
+                                                if (intValue < 1) {
+                                                    fpsValue.value = TextFieldValue("0")
+                                                }
+                                                if (intValue in 1..60) {
+                                                    fpsValue.value = textFieldValue
+                                                } else {
+                                                    Toast.makeText(
+                                                        appContext,
+                                                        "FPS cannot be larger then 60",
+                                                        Toast.LENGTH_SHORT
+                                                    ).show()
+                                                }
+                                            } catch (e: NumberFormatException) {
+                                                Toast.makeText(
+                                                    appContext,
+                                                    "Invalid number",
+                                                    Toast.LENGTH_LONG
+                                                ).show()
+                                            }
+                                        },
+                                        singleLine = true,
+                                        keyboardOptions = KeyboardOptions.Default.copy(
+                                            keyboardType = KeyboardType.Number,
+                                            imeAction = ImeAction.Done
+                                        ),
+                                        keyboardActions = KeyboardActions(
+                                            onDone = {
+                                                keyboardController?.hide()
+                                                focusManager.clearFocus()
+                                                newFPSValue = fpsValue.value.text.toInt()
+                                            }
+                                        )
+                                    )
+                                    Text(
+                                        modifier = Modifier.padding(8.dp),
+                                        text = "Set maximum FPS (Optimum is $DEFAULT_FPS)"
                                     )
                                 }
                             }
