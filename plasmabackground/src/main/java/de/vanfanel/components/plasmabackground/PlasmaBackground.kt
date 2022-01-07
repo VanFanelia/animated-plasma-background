@@ -23,7 +23,6 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.lifecycle.whenStarted
 import kotlinx.coroutines.launch
@@ -55,8 +54,6 @@ const val DEFAULT_FPS = 20
 
 @Composable
 fun PlasmaBackground(
-    imageWidth: Dp? = null,
-    imageHeight: Dp? = null,
     colors: Array<Color> = arrayOf(
         Color(0xFF227c9d),
         Color(0xFF17c3b2),
@@ -70,7 +67,6 @@ fun PlasmaBackground(
     debugDoNotScale: Boolean = false,
 ) {
     var frameTime by remember { mutableStateOf(0L) }
-    val heightMaps = buildHeightMap()
 
     GRADIENT_COLOR_PALETTE = buildGradientColors(colors, debugColor)
     GRADIENT_COLOR_PALETTE_RGBA = GRADIENT_COLOR_PALETTE.map { it.toRGBA8888() }
@@ -97,14 +93,12 @@ fun PlasmaBackground(
     }
 
     BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        val rawWidth = imageWidth ?: this.maxWidth
-        val rawHeight = imageHeight ?: this.maxHeight
+        val rawWidth = this.maxWidth
+        val rawHeight = this.maxHeight
         val width = this.maxWidth.value.roundToInt()
         val height = this.maxHeight.value.roundToInt()
         val fullWidth = with(LocalDensity.current) { rawWidth.toPx().toInt() }
         val fullHeight = with(LocalDensity.current) { rawHeight.toPx().toInt() }
-
-        Log.d(LOG_TAG, "Try to paint on Size($width/$height)")
 
         val paint = Paint().asFrameworkPaint()
         paint.apply {
@@ -114,7 +108,11 @@ fun PlasmaBackground(
             color = Color.White.toArgb()
         }
 
-        val mapSize = 1024
+        val mapSize = max(width, height) * 2
+        val heightMaps = buildHeightMap(mapSize)
+
+        Log.d(LOG_TAG, "Try to paint on Size($width/$height) with heightmap of ($mapSize)")
+
         CURRENT_IMAGE_BUFFER = IntBuffer.allocate(width * height)
         CURRENT_IMAGE_BUFFER?.mark()
         var imageWasDrawn = false
@@ -127,6 +125,7 @@ fun PlasmaBackground(
             Canvas(modifier = Modifier.fillMaxSize()) {
                 // current palette is established during animation
                 val heightMapPosition = moveHeightMap(frameTime)
+                Log.d(LOG_TAG, "Use heightmap positions. $heightMapPosition")
 
                 if (frameTime > LAST_MEASUREMENT + 1000) {
                     LAST_MEASUREMENT = frameTime
@@ -136,16 +135,17 @@ fun PlasmaBackground(
                 FRAMES_PER_SECOND_COUNTER += 1
 
                 CURRENT_IMAGE_BUFFER?.rewind()
-                for (x in 0 until width) {
-                    for (y in 0 until height) {
+                for (x in 0 until height) {
+                    for (y in 0 until width) {
                         // indexes into height maps for pixel
                         val i =
-                            (x + heightMapPosition.dy1) * mapSize + (y + heightMapPosition.dx1)
+                            (x + heightMapPosition.dx1) * mapSize + (y + heightMapPosition.dy1)
                         val k =
-                            (x + heightMapPosition.dy2) * mapSize + (y + heightMapPosition.dx2)
+                            (x + heightMapPosition.dx2) * mapSize + (y + heightMapPosition.dy2)
 
                         // height value of 0..255
-                        val h = (heightMaps.map1[i] + heightMaps.map2[k]).toInt()
+                        val h =
+                            (heightMaps.map1[i] + heightMaps.map2[k]).toInt()
                         // get color value from current palette
                         val c = GRADIENT_COLOR_PALETTE_RGBA[h]
 
@@ -157,7 +157,7 @@ fun PlasmaBackground(
                 if (!imageWasDrawn) {
                     // WARNING the height / width parameters are reversed, this is right! do not change
                     BITMAP_FOR_DRAWING =
-                        Bitmap.createBitmap(height, width, Bitmap.Config.ARGB_8888)
+                        Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
                     imageWasDrawn = true
                 } else {
                     BITMAP_FOR_DRAWING?.let { bitmap ->
