@@ -124,7 +124,7 @@ fun PlasmaBackground(
         } else {
             Canvas(modifier = Modifier.fillMaxSize()) {
                 // current palette is established during animation
-                val heightMapPosition = moveHeightMap(frameTime)
+                val heightMapPosition = moveHeightMap(frameTime, mapSize)
                 Log.d(LOG_TAG, "Use heightmap positions. $heightMapPosition")
 
                 if (frameTime > LAST_MEASUREMENT + 1000) {
@@ -221,7 +221,7 @@ data class HeightMaps(
     }
 }
 
-private fun buildHeightMap(mapSize: Int = 1024): HeightMaps {
+private fun buildHeightMap(mapSize: Int): HeightMaps {
     // init height map 1
     val heightMap1 = DoubleArray(mapSize * mapSize)
     val heightMap2 = DoubleArray(mapSize * mapSize)
@@ -325,7 +325,7 @@ private fun interpolate(c1: Color, c2: Color, f: Float): Color {
     return Color(red = red, green = green, blue = blue)
 }
 
-private fun moveHeightMap(timeIndex: Long, mapSize: Int = 1024): HeightMapPosition {
+private fun moveHeightMap(timeIndex: Long, mapSize: Int): HeightMapPosition {
     val dx1 = floor((((cos(timeIndex * 0.0002 + 0.4 + Math.PI) + 1) / 2) * mapSize) / 2).toInt()
     val dy1 = floor((((cos(timeIndex * 0.0003 - 0.1) + 1) / 2) * mapSize) / 2).toInt()
     val dx2 = floor((((cos(timeIndex * -0.0002 + 1.2) + 1) / 2) * mapSize) / 2).toInt()
