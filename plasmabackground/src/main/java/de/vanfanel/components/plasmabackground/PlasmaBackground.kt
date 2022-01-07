@@ -26,7 +26,6 @@ import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntSize
 import androidx.lifecycle.whenStarted
-import java.lang.Exception
 import java.nio.IntBuffer
 import kotlin.math.cos
 import kotlin.math.floor
@@ -64,7 +63,7 @@ fun PlasmaBackground(
         Color(0xfffe6d73)
     ),
     restrictFpsTo: Int = 30,
-    debugShowFPS: Boolean = true,
+    debugShowFPS: Boolean = false,
     debugColor: Color = Color(0x4DFF00FB)
 ) {
     var frameTime by remember { mutableStateOf(0L) }
@@ -164,7 +163,7 @@ fun PlasmaBackground(
                 if (debugShowFPS) {
                     drawIntoCanvas {
                         it.nativeCanvas.drawText(
-                            LAST_FRAME_RATE.toString() + " FPS",
+                            "$LAST_FRAME_RATE FPS",
                             20f,
                             60f,
                             paint
@@ -305,7 +304,7 @@ private fun distance(x: Double, y: Double): Double {
 }
 
 private fun interpolate(c1: Color, c2: Color, f: Float): Color {
-    val red = kotlin.math.min(1f, kotlin.math.max(0f, c1.red + (c2.red - c1.red) * f))
+    val red = min(1f, max(0f, c1.red + (c2.red - c1.red) * f))
     val green = min(1f, max(0f, c1.green + (c2.green - c1.green) * f))
     val blue = min(1f, max(0f, c1.blue + (c2.blue - c1.blue) * f))
 
