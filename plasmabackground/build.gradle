@@ -8,10 +8,6 @@ kotlin {
     explicitApi()
 }
 
-ext {
-    compose_version = '1.0.4'
-}
-
 android {
     compileSdk 31
 
@@ -20,6 +16,7 @@ android {
         // targetSdkVersion has no effect for libraries. This is only used for the test APK
         targetSdk 31
         // testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        versionName "$global_version_name"
     }
 
     compileOptions {
