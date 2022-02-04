@@ -44,8 +44,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import de.vanfanel.components.plasmabackground.DEFAULT_FPS
-import de.vanfanel.components.plasmabackground.PlasmaBackground
+import de.vanfanel.gemischtetuete.plasmabackground.DEFAULT_FPS
+import de.vanfanel.gemischtetuete.plasmabackground.PlasmaBackground
 import de.vanfanel.gemischtetuete.demoapp.ui.theme.AnimatedPlasmaBackgroundTheme
 import de.vanfanel.gemischtetuete.demoapp.ui.theme.TRANSPARENT_GREY
 

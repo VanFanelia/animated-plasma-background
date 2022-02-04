@@ -1,4 +1,4 @@
-package de.vanfanel.components.plasmabackground
+package de.vanfanel.gemischtetuete.plasmabackground
 
 import android.graphics.Bitmap
 import android.graphics.Typeface
@@ -39,16 +39,16 @@ import kotlin.math.sqrt
 const val LOG_TAG = "PlasmaBackground"
 
 // val HEIGHT_MAPS = buildHeightMap()
-var GRADIENT_COLOR_PALETTE: Array<Color> = emptyArray()
-var GRADIENT_COLOR_PALETTE_RGBA: List<Int> = emptyList()
+private var GRADIENT_COLOR_PALETTE: Array<Color> = emptyArray()
+private var GRADIENT_COLOR_PALETTE_RGBA: List<Int> = emptyList()
 
 // var CURRENT_IMAGE: IntArray = IntArray(0)
-var CURRENT_IMAGE_BUFFER: IntBuffer? = null
-var BITMAP_FOR_DRAWING: Bitmap? = null
-var LAST_MEASUREMENT: Long = 0
-var LAST_TICK: Long = 0
-var FRAMES_PER_SECOND_COUNTER = 0
-var LAST_FRAME_RATE = 0
+private var CURRENT_IMAGE_BUFFER: IntBuffer? = null
+private var BITMAP_FOR_DRAWING: Bitmap? = null
+private var LAST_MEASUREMENT: Long = 0
+private var LAST_TICK: Long = 0
+private var FRAMES_PER_SECOND_COUNTER = 0
+private var LAST_FRAME_RATE = 0
 
 const val DEFAULT_FPS = 20
 
