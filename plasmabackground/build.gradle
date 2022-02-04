@@ -1,6 +1,11 @@
 plugins {
     id 'com.android.library'
+    id 'kotlin-android'
     id 'org.jetbrains.kotlin.android'
+}
+
+kotlin {
+    explicitApi()
 }
 
 ext {
@@ -11,33 +16,51 @@ android {
     compileSdk 31
 
     defaultConfig {
-        minSdk 23
+        minSdk 21
+        // targetSdkVersion has no effect for libraries. This is only used for the test APK
         targetSdk 31
+        // testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    buildTypes {
-        release {
-            minifyEnabled false
-        }
-    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
     kotlinOptions {
         jvmTarget = '1.8'
     }
-    buildFeatures { // Enables Jetpack Compose for this module
-        compose = true
+
+    buildFeatures {
+        buildConfig false
+        // Enables Jetpack Compose for this module
+        compose true
     }
+
     composeOptions {
         kotlinCompilerExtensionVersion compose_version
     }
+
+    /*
+    packagingOptions {
+        // Some of the META-INF files conflict with coroutines-test. Exclude them to enable
+        // our test APK to build (has no effect on our AARs)
+        excludes += '/META-INF/AL2.0'
+        excludes += '/META-INF/LGPL2.1'
+    }
+
+    testOptions {
+        unitTest {
+            includeAndroidResources = true
+        }
+        animationDisabled = false
+    }
+    */
 }
 
 dependencies {
     implementation 'androidx.core:core-ktx:1.7.0'
-    implementation 'androidx.appcompat:appcompat:1.4.0'
+    implementation 'androidx.appcompat:appcompat:1.4.1'
     implementation "androidx.compose.ui:ui:$compose_version"
     implementation "androidx.compose.material:material:$compose_version"
     implementation "androidx.compose.foundation:foundation:$compose_version"

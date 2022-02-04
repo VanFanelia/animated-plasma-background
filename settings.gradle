@@ -12,6 +12,6 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "Animated Plasma Background"
+rootProject.name = "Gemischte Tüte - Component Library"
 include ':app'
 include ':plasmabackground'
