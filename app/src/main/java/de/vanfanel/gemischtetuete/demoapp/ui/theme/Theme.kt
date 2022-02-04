@@ -1,4 +1,4 @@
-package de.vanfanel.components.examples.plasmabackground.ui.theme
+package de.vanfanel.gemischtetuete.demoapp.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape

@@ -1,4 +1,4 @@
-package de.vanfanel.components.examples.plasmabackground
+package de.vanfanel.gemischtetuete.demoapp
 
 import android.os.Bundle
 import android.widget.Toast
@@ -44,10 +44,10 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import de.vanfanel.components.examples.plasmabackground.ui.theme.AnimatedPlasmaBackgroundTheme
-import de.vanfanel.components.examples.plasmabackground.ui.theme.TRANSPARENT_GREY
 import de.vanfanel.components.plasmabackground.DEFAULT_FPS
 import de.vanfanel.components.plasmabackground.PlasmaBackground
+import de.vanfanel.gemischtetuete.demoapp.ui.theme.AnimatedPlasmaBackgroundTheme
+import de.vanfanel.gemischtetuete.demoapp.ui.theme.TRANSPARENT_GREY
 
 @Suppress("EXPERIMENTAL_IS_NOT_ENABLED")
 class MainActivity : ComponentActivity() {
