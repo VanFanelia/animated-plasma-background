@@ -13,4 +13,5 @@ Todo: add description here
 
 # Build for Release
 To generate all files needed for a release run
-`gradlew clean :plasmabackground:assembleRelease :app:assembleDebug`
+
+`./gradlew clean :plasmabackground:assembleRelease :app:assembleDebug`
