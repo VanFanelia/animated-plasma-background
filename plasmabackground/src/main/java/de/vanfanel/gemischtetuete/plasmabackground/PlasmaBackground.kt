@@ -125,7 +125,6 @@ fun PlasmaBackground(
             Canvas(modifier = Modifier.fillMaxSize()) {
                 // current palette is established during animation
                 val heightMapPosition = moveHeightMap(frameTime, mapSize)
-                Log.d(LOG_TAG, "Use heightmap positions. $heightMapPosition")
 
                 if (frameTime > LAST_MEASUREMENT + 1000) {
                     LAST_MEASUREMENT = frameTime
