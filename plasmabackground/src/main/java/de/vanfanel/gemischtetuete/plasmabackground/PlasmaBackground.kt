@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Typeface
 import android.util.Log
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
@@ -54,6 +55,7 @@ const val DEFAULT_FPS = 20
 
 @Composable
 fun PlasmaBackground(
+    modifier: Modifier = Modifier,
     colors: Array<Color> = arrayOf(
         Color(0xFF227c9d),
         Color(0xFF17c3b2),
@@ -74,113 +76,115 @@ fun PlasmaBackground(
     Log.d(LOG_TAG, "Draw with maximum of $maxFPS FPS")
 
     val lifecycleOwner = LocalLifecycleOwner.current
-    LaunchedEffect(key1 = UUID.randomUUID().toString()) {
-        lifecycleOwner.whenStarted {
-            this.launch {
-                while (true) {
-                    // this will be called for each frame
-                    // by updating `remember` value we initiating EachFrameUpdatingCanvas redraw
-                    val currentFrameTimeInMilliseconds = withFrameMillis { it }
-                    val timePassed = currentFrameTimeInMilliseconds - LAST_TICK
-                    if (timePassed < minUpdateTime) {
-                        continue
-                    }
-                    frameTime = currentFrameTimeInMilliseconds
-                    LAST_TICK = frameTime
-                }
-            }
-        }
-    }
-
-    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
-        val rawWidth = this.maxWidth
-        val rawHeight = this.maxHeight
-        val width = this.maxWidth.value.roundToInt()
-        val height = this.maxHeight.value.roundToInt()
-        val fullWidth = with(LocalDensity.current) { rawWidth.toPx().toInt() }
-        val fullHeight = with(LocalDensity.current) { rawHeight.toPx().toInt() }
-
-        val paint = Paint().asFrameworkPaint()
-        paint.apply {
-            isAntiAlias = true
-            textSize = 48f
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-            color = Color.White.toArgb()
-        }
-
-        val mapSize = max(width, height) * 2
-        val heightMaps = buildHeightMap(mapSize)
-
-        Log.d(LOG_TAG, "Try to paint on Size($width/$height) with heightmap of ($mapSize)")
-
-        CURRENT_IMAGE_BUFFER = IntBuffer.allocate(width * height)
-        CURRENT_IMAGE_BUFFER?.mark()
-        var imageWasDrawn = false
-
-        if (heightMaps.map1.isEmpty() || heightMaps.map2.isEmpty()) {
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                this.drawRect(debugColor, size = Size(1f, 1f))
-            }
-        } else {
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                // current palette is established during animation
-                val heightMapPosition = moveHeightMap(frameTime, mapSize)
-
-                if (frameTime > LAST_MEASUREMENT + 1000) {
-                    LAST_MEASUREMENT = frameTime
-                    LAST_FRAME_RATE = FRAMES_PER_SECOND_COUNTER
-                    FRAMES_PER_SECOND_COUNTER = 0
-                }
-                FRAMES_PER_SECOND_COUNTER += 1
-
-                CURRENT_IMAGE_BUFFER?.rewind()
-                for (x in 0 until height) {
-                    for (y in 0 until width) {
-                        // indexes into height maps for pixel
-                        val i =
-                            (x + heightMapPosition.dx1) * mapSize + (y + heightMapPosition.dy1)
-                        val k =
-                            (x + heightMapPosition.dx2) * mapSize + (y + heightMapPosition.dy2)
-
-                        // height value of 0..255
-                        val h =
-                            (heightMaps.map1[i] + heightMaps.map2[k]).toInt()
-                        // get color value from current palette
-                        val c = GRADIENT_COLOR_PALETTE_RGBA[h]
-
-                        // set pixel data
-                        CURRENT_IMAGE_BUFFER?.put(c)
-                    }
-                }
-                CURRENT_IMAGE_BUFFER?.clear()
-                if (!imageWasDrawn) {
-                    // WARNING the height / width parameters are reversed, this is right! do not change
-                    BITMAP_FOR_DRAWING =
-                        Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-                    imageWasDrawn = true
-                } else {
-                    BITMAP_FOR_DRAWING?.let { bitmap ->
-                        bitmap.copyPixelsFromBuffer(CURRENT_IMAGE_BUFFER)
-                        val destinationSize = if (!debugDoNotScale) {
-                            IntSize(fullWidth, fullHeight * 2)
-                        } else {
-                            IntSize(width, height)
+    Box(modifier = modifier) {
+        LaunchedEffect(key1 = UUID.randomUUID().toString()) {
+            lifecycleOwner.whenStarted {
+                this.launch {
+                    while (true) {
+                        // this will be called for each frame
+                        // by updating `remember` value we initiating EachFrameUpdatingCanvas redraw
+                        val currentFrameTimeInMilliseconds = withFrameMillis { it }
+                        val timePassed = currentFrameTimeInMilliseconds - LAST_TICK
+                        if (timePassed < minUpdateTime) {
+                            continue
                         }
-                        this.drawImage(
-                            image = bitmap.asImageBitmap(),
-                            srcSize = IntSize(width, height),
-                            dstSize = destinationSize
-                        )
+                        frameTime = currentFrameTimeInMilliseconds
+                        LAST_TICK = frameTime
                     }
                 }
-                if (debugShowFPS) {
-                    drawIntoCanvas {
-                        it.nativeCanvas.drawText(
-                            "$LAST_FRAME_RATE FPS",
-                            20f,
-                            60f,
-                            paint
-                        )
+            }
+        }
+
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val rawWidth = this.maxWidth
+            val rawHeight = this.maxHeight
+            val width = this.maxWidth.value.roundToInt()
+            val height = this.maxHeight.value.roundToInt()
+            val fullWidth = with(LocalDensity.current) { rawWidth.toPx().toInt() }
+            val fullHeight = with(LocalDensity.current) { rawHeight.toPx().toInt() }
+
+            val paint = Paint().asFrameworkPaint()
+            paint.apply {
+                isAntiAlias = true
+                textSize = 48f
+                typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+                color = Color.White.toArgb()
+            }
+
+            val mapSize = max(width, height) * 2
+            val heightMaps = buildHeightMap(mapSize)
+
+            Log.d(LOG_TAG, "Try to paint on Size($width/$height) with heightmap of ($mapSize)")
+
+            CURRENT_IMAGE_BUFFER = IntBuffer.allocate(width * height)
+            CURRENT_IMAGE_BUFFER?.mark()
+            var imageWasDrawn = false
+
+            if (heightMaps.map1.isEmpty() || heightMaps.map2.isEmpty()) {
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    this.drawRect(debugColor, size = Size(1f, 1f))
+                }
+            } else {
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    // current palette is established during animation
+                    val heightMapPosition = moveHeightMap(frameTime, mapSize)
+
+                    if (frameTime > LAST_MEASUREMENT + 1000) {
+                        LAST_MEASUREMENT = frameTime
+                        LAST_FRAME_RATE = FRAMES_PER_SECOND_COUNTER
+                        FRAMES_PER_SECOND_COUNTER = 0
+                    }
+                    FRAMES_PER_SECOND_COUNTER += 1
+
+                    CURRENT_IMAGE_BUFFER?.rewind()
+                    for (x in 0 until height) {
+                        for (y in 0 until width) {
+                            // indexes into height maps for pixel
+                            val i =
+                                (x + heightMapPosition.dx1) * mapSize + (y + heightMapPosition.dy1)
+                            val k =
+                                (x + heightMapPosition.dx2) * mapSize + (y + heightMapPosition.dy2)
+
+                            // height value of 0..255
+                            val h =
+                                (heightMaps.map1[i] + heightMaps.map2[k]).toInt()
+                            // get color value from current palette
+                            val c = GRADIENT_COLOR_PALETTE_RGBA[h]
+
+                            // set pixel data
+                            CURRENT_IMAGE_BUFFER?.put(c)
+                        }
+                    }
+                    CURRENT_IMAGE_BUFFER?.clear()
+                    if (!imageWasDrawn) {
+                        // WARNING the height / width parameters are reversed, this is right! do not change
+                        BITMAP_FOR_DRAWING =
+                            Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+                        imageWasDrawn = true
+                    } else {
+                        BITMAP_FOR_DRAWING?.let { bitmap ->
+                            bitmap.copyPixelsFromBuffer(CURRENT_IMAGE_BUFFER)
+                            val destinationSize = if (!debugDoNotScale) {
+                                IntSize(fullWidth, fullHeight * 2)
+                            } else {
+                                IntSize(width, height)
+                            }
+                            this.drawImage(
+                                image = bitmap.asImageBitmap(),
+                                srcSize = IntSize(width, height),
+                                dstSize = destinationSize
+                            )
+                        }
+                    }
+                    if (debugShowFPS) {
+                        drawIntoCanvas {
+                            it.nativeCanvas.drawText(
+                                "$LAST_FRAME_RATE FPS",
+                                20f,
+                                60f,
+                                paint
+                            )
+                        }
                     }
                 }
             }
