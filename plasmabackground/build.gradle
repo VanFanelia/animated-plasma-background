@@ -16,7 +16,6 @@ android {
         // targetSdkVersion has no effect for libraries. This is only used for the test APK
         targetSdk 31
         // testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
-        versionName "$global_version_name"
     }
 
     compileOptions {
@@ -37,22 +36,6 @@ android {
     composeOptions {
         kotlinCompilerExtensionVersion compose_version
     }
-
-    /*
-    packagingOptions {
-        // Some of the META-INF files conflict with coroutines-test. Exclude them to enable
-        // our test APK to build (has no effect on our AARs)
-        excludes += '/META-INF/AL2.0'
-        excludes += '/META-INF/LGPL2.1'
-    }
-
-    testOptions {
-        unitTest {
-            includeAndroidResources = true
-        }
-        animationDisabled = false
-    }
-    */
 }
 
 dependencies {

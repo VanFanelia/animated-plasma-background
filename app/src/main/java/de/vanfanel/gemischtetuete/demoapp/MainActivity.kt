@@ -44,12 +44,11 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import de.vanfanel.gemischtetuete.plasmabackground.DEFAULT_FPS
-import de.vanfanel.gemischtetuete.plasmabackground.PlasmaBackground
 import de.vanfanel.gemischtetuete.demoapp.ui.theme.AnimatedPlasmaBackgroundTheme
 import de.vanfanel.gemischtetuete.demoapp.ui.theme.TRANSPARENT_GREY
+import de.vanfanel.gemischtetuete.plasmabackground.DEFAULT_FPS
+import de.vanfanel.gemischtetuete.plasmabackground.PlasmaBackground
 
-@Suppress("EXPERIMENTAL_IS_NOT_ENABLED")
 class MainActivity : ComponentActivity() {
 
     @OptIn(ExperimentalAnimationApi::class, androidx.compose.ui.ExperimentalComposeUiApi::class)
@@ -81,8 +80,8 @@ class MainActivity : ComponentActivity() {
                             .height(200.dp)
                             .align(Alignment.BottomCenter),
                         visible = showMenuOverlay,
-                        enter = slideInVertically({ it }),
-                        exit = slideOutVertically({ it })
+                        enter = slideInVertically(initialOffsetY = { it }),
+                        exit = slideOutVertically(targetOffsetY = { it })
                     ) {
                         Surface(
                             color = TRANSPARENT_GREY
