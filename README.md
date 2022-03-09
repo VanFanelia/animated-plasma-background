@@ -41,11 +41,11 @@ If you use **maven**, **sbt**, **leiningen** see [HowTo on JitPack.io](https://j
 
 In urban regions of germany small kids often buy sweets and candy from kiosk. To get a mixed bag of random brands you need to order a "gemischte Tüte" (mixed bag). This component library has no intention to be a complete design system or a Component Library like Bootstrap or Material UI. It is just a collection of beautiful components without a relation to each other. The creators wants to share these components and find a single place to present them. This is "Gemischte Tüte Component Library". A mixed bag of components for different tastes.
 
-# Components
+## Components
 
-## Plasma background
+### 🌋 [Plasma background](./plasmabackground/)
 
-Todo: add description here
+Animated Plasma Background is an animated background image that turns your android screen into a lava lamp. Inspired by Slawomir Chodnicki Article this simple Jetpack Compose Component enable you to turn any background into a smooth colorful animation.
 
 
 ---
